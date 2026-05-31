@@ -1,8 +1,23 @@
+# Flutter-related
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Web-related
 node_modules/
-build/
 dist/
 coverage/
+
+# General
 .DS_Store
 *.log
 .env*
 !.env.example
+
+# IDE-specific
+.idea/
+.vscode/
+*.iml
