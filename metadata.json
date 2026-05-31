@@ -1,0 +1,6 @@
+{
+  "name": "ЦУП Автопарка (Fleet Control)",
+  "description": "Система оперативного управления статусами, аналитики простоев, датчиков телематики и автоматизации работы автопарка.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
