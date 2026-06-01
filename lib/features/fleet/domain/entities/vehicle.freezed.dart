@@ -34,6 +34,17 @@ mixin _$Vehicle {
   String get responsibleUser => throw _privateConstructorUsedError;
   String? get comment => throw _privateConstructorUsedError;
   DateTime get lastUpdated => throw _privateConstructorUsedError;
+  double get hourlyCost => throw _privateConstructorUsedError;
+  double get fuelLevel => throw _privateConstructorUsedError;
+  double get engineTemp => throw _privateConstructorUsedError;
+  double get mileage => throw _privateConstructorUsedError;
+  double get revenue => throw _privateConstructorUsedError;
+  double get maintenanceCosts => throw _privateConstructorUsedError;
+  double get fuelCosts => throw _privateConstructorUsedError;
+  double get amortization => throw _privateConstructorUsedError;
+  double get lat => throw _privateConstructorUsedError;
+  double get lng => throw _privateConstructorUsedError;
+  double get speed => throw _privateConstructorUsedError;
 
   /// Serializes this Vehicle to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -63,6 +74,17 @@ abstract class $VehicleCopyWith<$Res> {
     String responsibleUser,
     String? comment,
     DateTime lastUpdated,
+    double hourlyCost,
+    double fuelLevel,
+    double engineTemp,
+    double mileage,
+    double revenue,
+    double maintenanceCosts,
+    double fuelCosts,
+    double amortization,
+    double lat,
+    double lng,
+    double speed,
   });
 }
 
@@ -94,6 +116,17 @@ class _$VehicleCopyWithImpl<$Res, $Val extends Vehicle>
     Object? responsibleUser = null,
     Object? comment = freezed,
     Object? lastUpdated = null,
+    Object? hourlyCost = null,
+    Object? fuelLevel = null,
+    Object? engineTemp = null,
+    Object? mileage = null,
+    Object? revenue = null,
+    Object? maintenanceCosts = null,
+    Object? fuelCosts = null,
+    Object? amortization = null,
+    Object? lat = null,
+    Object? lng = null,
+    Object? speed = null,
   }) {
     return _then(
       _value.copyWith(
@@ -149,6 +182,50 @@ class _$VehicleCopyWithImpl<$Res, $Val extends Vehicle>
                 ? _value.lastUpdated
                 : lastUpdated // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            hourlyCost: null == hourlyCost
+                ? _value.hourlyCost
+                : hourlyCost // ignore: cast_nullable_to_non_nullable
+                      as double,
+            fuelLevel: null == fuelLevel
+                ? _value.fuelLevel
+                : fuelLevel // ignore: cast_nullable_to_non_nullable
+                      as double,
+            engineTemp: null == engineTemp
+                ? _value.engineTemp
+                : engineTemp // ignore: cast_nullable_to_non_nullable
+                      as double,
+            mileage: null == mileage
+                ? _value.mileage
+                : mileage // ignore: cast_nullable_to_non_nullable
+                      as double,
+            revenue: null == revenue
+                ? _value.revenue
+                : revenue // ignore: cast_nullable_to_non_nullable
+                      as double,
+            maintenanceCosts: null == maintenanceCosts
+                ? _value.maintenanceCosts
+                : maintenanceCosts // ignore: cast_nullable_to_non_nullable
+                      as double,
+            fuelCosts: null == fuelCosts
+                ? _value.fuelCosts
+                : fuelCosts // ignore: cast_nullable_to_non_nullable
+                      as double,
+            amortization: null == amortization
+                ? _value.amortization
+                : amortization // ignore: cast_nullable_to_non_nullable
+                      as double,
+            lat: null == lat
+                ? _value.lat
+                : lat // ignore: cast_nullable_to_non_nullable
+                      as double,
+            lng: null == lng
+                ? _value.lng
+                : lng // ignore: cast_nullable_to_non_nullable
+                      as double,
+            speed: null == speed
+                ? _value.speed
+                : speed // ignore: cast_nullable_to_non_nullable
+                      as double,
           )
           as $Val,
     );
@@ -177,6 +254,17 @@ abstract class _$$VehicleImplCopyWith<$Res> implements $VehicleCopyWith<$Res> {
     String responsibleUser,
     String? comment,
     DateTime lastUpdated,
+    double hourlyCost,
+    double fuelLevel,
+    double engineTemp,
+    double mileage,
+    double revenue,
+    double maintenanceCosts,
+    double fuelCosts,
+    double amortization,
+    double lat,
+    double lng,
+    double speed,
   });
 }
 
@@ -207,6 +295,17 @@ class __$$VehicleImplCopyWithImpl<$Res>
     Object? responsibleUser = null,
     Object? comment = freezed,
     Object? lastUpdated = null,
+    Object? hourlyCost = null,
+    Object? fuelLevel = null,
+    Object? engineTemp = null,
+    Object? mileage = null,
+    Object? revenue = null,
+    Object? maintenanceCosts = null,
+    Object? fuelCosts = null,
+    Object? amortization = null,
+    Object? lat = null,
+    Object? lng = null,
+    Object? speed = null,
   }) {
     return _then(
       _$VehicleImpl(
@@ -262,6 +361,50 @@ class __$$VehicleImplCopyWithImpl<$Res>
             ? _value.lastUpdated
             : lastUpdated // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        hourlyCost: null == hourlyCost
+            ? _value.hourlyCost
+            : hourlyCost // ignore: cast_nullable_to_non_nullable
+                  as double,
+        fuelLevel: null == fuelLevel
+            ? _value.fuelLevel
+            : fuelLevel // ignore: cast_nullable_to_non_nullable
+                  as double,
+        engineTemp: null == engineTemp
+            ? _value.engineTemp
+            : engineTemp // ignore: cast_nullable_to_non_nullable
+                  as double,
+        mileage: null == mileage
+            ? _value.mileage
+            : mileage // ignore: cast_nullable_to_non_nullable
+                  as double,
+        revenue: null == revenue
+            ? _value.revenue
+            : revenue // ignore: cast_nullable_to_non_nullable
+                  as double,
+        maintenanceCosts: null == maintenanceCosts
+            ? _value.maintenanceCosts
+            : maintenanceCosts // ignore: cast_nullable_to_non_nullable
+                  as double,
+        fuelCosts: null == fuelCosts
+            ? _value.fuelCosts
+            : fuelCosts // ignore: cast_nullable_to_non_nullable
+                  as double,
+        amortization: null == amortization
+            ? _value.amortization
+            : amortization // ignore: cast_nullable_to_non_nullable
+                  as double,
+        lat: null == lat
+            ? _value.lat
+            : lat // ignore: cast_nullable_to_non_nullable
+                  as double,
+        lng: null == lng
+            ? _value.lng
+            : lng // ignore: cast_nullable_to_non_nullable
+                  as double,
+        speed: null == speed
+            ? _value.speed
+            : speed // ignore: cast_nullable_to_non_nullable
+                  as double,
       ),
     );
   }
@@ -284,6 +427,17 @@ class _$VehicleImpl implements _Vehicle {
     required this.responsibleUser,
     this.comment,
     required this.lastUpdated,
+    this.hourlyCost = 0.0,
+    this.fuelLevel = 100.0,
+    this.engineTemp = 85.0,
+    this.mileage = 0.0,
+    this.revenue = 0.0,
+    this.maintenanceCosts = 0.0,
+    this.fuelCosts = 0.0,
+    this.amortization = 0.0,
+    this.lat = 55.7558,
+    this.lng = 37.6173,
+    this.speed = 0.0,
   });
 
   factory _$VehicleImpl.fromJson(Map<String, dynamic> json) =>
@@ -315,10 +469,43 @@ class _$VehicleImpl implements _Vehicle {
   final String? comment;
   @override
   final DateTime lastUpdated;
+  @override
+  @JsonKey()
+  final double hourlyCost;
+  @override
+  @JsonKey()
+  final double fuelLevel;
+  @override
+  @JsonKey()
+  final double engineTemp;
+  @override
+  @JsonKey()
+  final double mileage;
+  @override
+  @JsonKey()
+  final double revenue;
+  @override
+  @JsonKey()
+  final double maintenanceCosts;
+  @override
+  @JsonKey()
+  final double fuelCosts;
+  @override
+  @JsonKey()
+  final double amortization;
+  @override
+  @JsonKey()
+  final double lat;
+  @override
+  @JsonKey()
+  final double lng;
+  @override
+  @JsonKey()
+  final double speed;
 
   @override
   String toString() {
-    return 'Vehicle(id: $id, licensePlate: $licensePlate, brandModel: $brandModel, trailer: $trailer, driver: $driver, column: $column, status: $status, statusDuration: $statusDuration, reason: $reason, location: $location, responsibleUser: $responsibleUser, comment: $comment, lastUpdated: $lastUpdated)';
+    return 'Vehicle(id: $id, licensePlate: $licensePlate, brandModel: $brandModel, trailer: $trailer, driver: $driver, column: $column, status: $status, statusDuration: $statusDuration, reason: $reason, location: $location, responsibleUser: $responsibleUser, comment: $comment, lastUpdated: $lastUpdated, hourlyCost: $hourlyCost, fuelLevel: $fuelLevel, engineTemp: $engineTemp, mileage: $mileage, revenue: $revenue, maintenanceCosts: $maintenanceCosts, fuelCosts: $fuelCosts, amortization: $amortization, lat: $lat, lng: $lng, speed: $speed)';
   }
 
   @override
@@ -344,12 +531,29 @@ class _$VehicleImpl implements _Vehicle {
                 other.responsibleUser == responsibleUser) &&
             (identical(other.comment, comment) || other.comment == comment) &&
             (identical(other.lastUpdated, lastUpdated) ||
-                other.lastUpdated == lastUpdated));
+                other.lastUpdated == lastUpdated) &&
+            (identical(other.hourlyCost, hourlyCost) ||
+                other.hourlyCost == hourlyCost) &&
+            (identical(other.fuelLevel, fuelLevel) ||
+                other.fuelLevel == fuelLevel) &&
+            (identical(other.engineTemp, engineTemp) ||
+                other.engineTemp == engineTemp) &&
+            (identical(other.mileage, mileage) || other.mileage == mileage) &&
+            (identical(other.revenue, revenue) || other.revenue == revenue) &&
+            (identical(other.maintenanceCosts, maintenanceCosts) ||
+                other.maintenanceCosts == maintenanceCosts) &&
+            (identical(other.fuelCosts, fuelCosts) ||
+                other.fuelCosts == fuelCosts) &&
+            (identical(other.amortization, amortization) ||
+                other.amortization == amortization) &&
+            (identical(other.lat, lat) || other.lat == lat) &&
+            (identical(other.lng, lng) || other.lng == lng) &&
+            (identical(other.speed, speed) || other.speed == speed));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     licensePlate,
@@ -364,7 +568,18 @@ class _$VehicleImpl implements _Vehicle {
     responsibleUser,
     comment,
     lastUpdated,
-  );
+    hourlyCost,
+    fuelLevel,
+    engineTemp,
+    mileage,
+    revenue,
+    maintenanceCosts,
+    fuelCosts,
+    amortization,
+    lat,
+    lng,
+    speed,
+  ]);
 
   /// Create a copy of Vehicle
   /// with the given fields replaced by the non-null parameter values.
@@ -395,6 +610,17 @@ abstract class _Vehicle implements Vehicle {
     required final String responsibleUser,
     final String? comment,
     required final DateTime lastUpdated,
+    final double hourlyCost,
+    final double fuelLevel,
+    final double engineTemp,
+    final double mileage,
+    final double revenue,
+    final double maintenanceCosts,
+    final double fuelCosts,
+    final double amortization,
+    final double lat,
+    final double lng,
+    final double speed,
   }) = _$VehicleImpl;
 
   factory _Vehicle.fromJson(Map<String, dynamic> json) = _$VehicleImpl.fromJson;
@@ -425,6 +651,28 @@ abstract class _Vehicle implements Vehicle {
   String? get comment;
   @override
   DateTime get lastUpdated;
+  @override
+  double get hourlyCost;
+  @override
+  double get fuelLevel;
+  @override
+  double get engineTemp;
+  @override
+  double get mileage;
+  @override
+  double get revenue;
+  @override
+  double get maintenanceCosts;
+  @override
+  double get fuelCosts;
+  @override
+  double get amortization;
+  @override
+  double get lat;
+  @override
+  double get lng;
+  @override
+  double get speed;
 
   /// Create a copy of Vehicle
   /// with the given fields replaced by the non-null parameter values.
