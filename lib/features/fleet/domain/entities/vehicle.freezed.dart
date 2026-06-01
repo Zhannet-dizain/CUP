@@ -34,6 +34,9 @@ mixin _$Vehicle {
   String get responsibleUser => throw _privateConstructorUsedError;
   String? get comment => throw _privateConstructorUsedError;
   DateTime get lastUpdated => throw _privateConstructorUsedError;
+  double get hourlyCost => throw _privateConstructorUsedError;
+  double get fuelLevel => throw _privateConstructorUsedError;
+  double get engineTemp => throw _privateConstructorUsedError;
 
   /// Serializes this Vehicle to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -63,6 +66,9 @@ abstract class $VehicleCopyWith<$Res> {
     String responsibleUser,
     String? comment,
     DateTime lastUpdated,
+    double hourlyCost,
+    double fuelLevel,
+    double engineTemp,
   });
 }
 
@@ -94,6 +100,9 @@ class _$VehicleCopyWithImpl<$Res, $Val extends Vehicle>
     Object? responsibleUser = null,
     Object? comment = freezed,
     Object? lastUpdated = null,
+    Object? hourlyCost = null,
+    Object? fuelLevel = null,
+    Object? engineTemp = null,
   }) {
     return _then(
       _value.copyWith(
@@ -149,6 +158,18 @@ class _$VehicleCopyWithImpl<$Res, $Val extends Vehicle>
                 ? _value.lastUpdated
                 : lastUpdated // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            hourlyCost: null == hourlyCost
+                ? _value.hourlyCost
+                : hourlyCost // ignore: cast_nullable_to_non_nullable
+                      as double,
+            fuelLevel: null == fuelLevel
+                ? _value.fuelLevel
+                : fuelLevel // ignore: cast_nullable_to_non_nullable
+                      as double,
+            engineTemp: null == engineTemp
+                ? _value.engineTemp
+                : engineTemp // ignore: cast_nullable_to_non_nullable
+                      as double,
           )
           as $Val,
     );
@@ -177,6 +198,9 @@ abstract class _$$VehicleImplCopyWith<$Res> implements $VehicleCopyWith<$Res> {
     String responsibleUser,
     String? comment,
     DateTime lastUpdated,
+    double hourlyCost,
+    double fuelLevel,
+    double engineTemp,
   });
 }
 
@@ -207,6 +231,9 @@ class __$$VehicleImplCopyWithImpl<$Res>
     Object? responsibleUser = null,
     Object? comment = freezed,
     Object? lastUpdated = null,
+    Object? hourlyCost = null,
+    Object? fuelLevel = null,
+    Object? engineTemp = null,
   }) {
     return _then(
       _$VehicleImpl(
@@ -262,6 +289,18 @@ class __$$VehicleImplCopyWithImpl<$Res>
             ? _value.lastUpdated
             : lastUpdated // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        hourlyCost: null == hourlyCost
+            ? _value.hourlyCost
+            : hourlyCost // ignore: cast_nullable_to_non_nullable
+                  as double,
+        fuelLevel: null == fuelLevel
+            ? _value.fuelLevel
+            : fuelLevel // ignore: cast_nullable_to_non_nullable
+                  as double,
+        engineTemp: null == engineTemp
+            ? _value.engineTemp
+            : engineTemp // ignore: cast_nullable_to_non_nullable
+                  as double,
       ),
     );
   }
@@ -284,6 +323,9 @@ class _$VehicleImpl implements _Vehicle {
     required this.responsibleUser,
     this.comment,
     required this.lastUpdated,
+    this.hourlyCost = 0.0,
+    this.fuelLevel = 100.0,
+    this.engineTemp = 85.0,
   });
 
   factory _$VehicleImpl.fromJson(Map<String, dynamic> json) =>
@@ -315,10 +357,19 @@ class _$VehicleImpl implements _Vehicle {
   final String? comment;
   @override
   final DateTime lastUpdated;
+  @override
+  @JsonKey()
+  final double hourlyCost;
+  @override
+  @JsonKey()
+  final double fuelLevel;
+  @override
+  @JsonKey()
+  final double engineTemp;
 
   @override
   String toString() {
-    return 'Vehicle(id: $id, licensePlate: $licensePlate, brandModel: $brandModel, trailer: $trailer, driver: $driver, column: $column, status: $status, statusDuration: $statusDuration, reason: $reason, location: $location, responsibleUser: $responsibleUser, comment: $comment, lastUpdated: $lastUpdated)';
+    return 'Vehicle(id: $id, licensePlate: $licensePlate, brandModel: $brandModel, trailer: $trailer, driver: $driver, column: $column, status: $status, statusDuration: $statusDuration, reason: $reason, location: $location, responsibleUser: $responsibleUser, comment: $comment, lastUpdated: $lastUpdated, hourlyCost: $hourlyCost, fuelLevel: $fuelLevel, engineTemp: $engineTemp)';
   }
 
   @override
@@ -344,7 +395,13 @@ class _$VehicleImpl implements _Vehicle {
                 other.responsibleUser == responsibleUser) &&
             (identical(other.comment, comment) || other.comment == comment) &&
             (identical(other.lastUpdated, lastUpdated) ||
-                other.lastUpdated == lastUpdated));
+                other.lastUpdated == lastUpdated) &&
+            (identical(other.hourlyCost, hourlyCost) ||
+                other.hourlyCost == hourlyCost) &&
+            (identical(other.fuelLevel, fuelLevel) ||
+                other.fuelLevel == fuelLevel) &&
+            (identical(other.engineTemp, engineTemp) ||
+                other.engineTemp == engineTemp));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -364,6 +421,9 @@ class _$VehicleImpl implements _Vehicle {
     responsibleUser,
     comment,
     lastUpdated,
+    hourlyCost,
+    fuelLevel,
+    engineTemp,
   );
 
   /// Create a copy of Vehicle
@@ -395,6 +455,9 @@ abstract class _Vehicle implements Vehicle {
     required final String responsibleUser,
     final String? comment,
     required final DateTime lastUpdated,
+    final double hourlyCost,
+    final double fuelLevel,
+    final double engineTemp,
   }) = _$VehicleImpl;
 
   factory _Vehicle.fromJson(Map<String, dynamic> json) = _$VehicleImpl.fromJson;
@@ -425,6 +488,12 @@ abstract class _Vehicle implements Vehicle {
   String? get comment;
   @override
   DateTime get lastUpdated;
+  @override
+  double get hourlyCost;
+  @override
+  double get fuelLevel;
+  @override
+  double get engineTemp;
 
   /// Create a copy of Vehicle
   /// with the given fields replaced by the non-null parameter values.

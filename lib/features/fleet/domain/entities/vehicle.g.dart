@@ -23,6 +23,9 @@ _$VehicleImpl _$$VehicleImplFromJson(Map<String, dynamic> json) =>
       responsibleUser: json['responsibleUser'] as String,
       comment: json['comment'] as String?,
       lastUpdated: DateTime.parse(json['lastUpdated'] as String),
+      hourlyCost: (json['hourlyCost'] as num?)?.toDouble() ?? 0.0,
+      fuelLevel: (json['fuelLevel'] as num?)?.toDouble() ?? 100.0,
+      engineTemp: (json['engineTemp'] as num?)?.toDouble() ?? 85.0,
     );
 
 Map<String, dynamic> _$$VehicleImplToJson(_$VehicleImpl instance) =>
@@ -40,6 +43,9 @@ Map<String, dynamic> _$$VehicleImplToJson(_$VehicleImpl instance) =>
       'responsibleUser': instance.responsibleUser,
       'comment': instance.comment,
       'lastUpdated': instance.lastUpdated.toIso8601String(),
+      'hourlyCost': instance.hourlyCost,
+      'fuelLevel': instance.fuelLevel,
+      'engineTemp': instance.engineTemp,
     };
 
 const _$VehicleStatusEnumMap = {

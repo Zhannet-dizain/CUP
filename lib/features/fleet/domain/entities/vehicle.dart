@@ -21,6 +21,9 @@ class Vehicle with _$Vehicle {
     required String responsibleUser,
     String? comment,
     required DateTime lastUpdated,
+    @Default(0.0) double hourlyCost,
+    @Default(100.0) double fuelLevel,
+    @Default(85.0) double engineTemp,
   }) = _Vehicle;
 
   factory Vehicle.fromJson(Map<String, dynamic> json) => _$VehicleFromJson(json);
