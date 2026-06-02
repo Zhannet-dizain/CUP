@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/driver_provider.dart';
+import '../../domain/entities/driver_earnings.dart';
+import '../widgets/axle_calc_dialog.dart';
 
 class DriverBalanceScreen extends ConsumerWidget {
   const DriverBalanceScreen({super.key});
@@ -13,7 +15,7 @@ class DriverBalanceScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text('МОЙ БАЛАНС И ГРАФИК ВЫПЛАТ',
+        title: const Text('ЗАРАБОТНАЯ ПЛАТА',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF0F172A),
         elevation: 0,
@@ -28,6 +30,8 @@ class DriverBalanceScreen extends ConsumerWidget {
             _buildMileageKpi(earnings),
             const SizedBox(height: 20),
             _buildEarningsCalculator(earnings),
+            const SizedBox(height: 20),
+            _buildToolsSection(context),
           ],
         ),
       ),
@@ -98,6 +102,13 @@ class DriverBalanceScreen extends ConsumerWidget {
     double progress = earnings.currentMonthKmDriven / earnings.kmTarget;
     if (progress > 1.0) progress = 1.0;
 
+    // Use a simple list for months as 'ru_RU' locale might not be initialized
+    final months = [
+      'Январе', 'Феврале', 'Марте', 'Апреле', 'Мае', 'Июне',
+      'Июле', 'Августе', 'Сентябре', 'Октябре', 'Ноябре', 'Декабре'
+    ];
+    final String currentMonthName = months[DateTime.now().month - 1];
+
     return Card(
       color: const Color(0xFF1E293B),
       shape: RoundedRectangleBorder(
@@ -108,8 +119,8 @@ class DriverBalanceScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('План пробега (KPI)',
-                style: TextStyle(
+            Text('Заработано в $currentMonthName (текущий месяц)',
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold)),
@@ -209,6 +220,62 @@ class DriverBalanceScreen extends ConsumerWidget {
               style: TextStyle(color: color ?? Colors.white, fontWeight: FontWeight.bold)),
         ],
       ),
+    );
+  }
+
+  Widget _buildToolsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'ИНСТРУМЕНТЫ',
+          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => const AxleCalcDialog(),
+              );
+            },
+            icon: const Icon(Icons.calculate_outlined),
+            label: const Text('Калькулятор развесовки груза', style: TextStyle(fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1E293B),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFF334155)),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF334155).withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, color: Color(0xFF38BDF8), size: 20),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Любые финансовые споры решаются только личным звонком начальнику колонны.',
+                  style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
