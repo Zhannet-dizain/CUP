@@ -2,105 +2,183 @@ import '../../domain/models/vehicle.dart';
 
 /// Справочник российской техники
 class RuVehicleDatabase {
-  /// Список доступных тягачей
-  static final List<TractorModel> tractors = [
+  /// Список популярных тягачей в РФ
+  static final List<TractorModel> tractorList = [
+    // Европейская «Большая семерка»
     TractorModel(
-      name: 'КАМАЗ 54901 (K5)',
-      axleConfiguration: '4x2',
-      unladenWeight: 7900,
-      suspension: SuspensionType.mixed,
-    ),
-    TractorModel(
-      name: 'Scania S500 Next Gen',
-      axleConfiguration: '4x2',
-      unladenWeight: 8200,
+      id: 'daf-xf105',
+      brand: 'DAF',
+      model: 'XF 105',
+      wheelFormula: '4x2',
+      curbWeight: 8.1,
+      frontAxleEmptyWeight: 5.2,
+      rearAxleEmptyWeight: 2.9,
+      maxFifthWheelLoad: 18.0,
       suspension: SuspensionType.air,
     ),
     TractorModel(
-      name: 'КАМАЗ 65209',
-      axleConfiguration: '6x2',
-      unladenWeight: 9200,
+      id: 'merc-actros-mp4',
+      brand: 'Mercedes-Benz',
+      model: 'Actros MP4',
+      wheelFormula: '4x2',
+      curbWeight: 8.3,
+      frontAxleEmptyWeight: 5.4,
+      rearAxleEmptyWeight: 2.9,
+      maxFifthWheelLoad: 18.5,
+      suspension: SuspensionType.air,
+    ),
+    TractorModel(
+      id: 'scania-r440',
+      brand: 'Scania',
+      model: 'R440',
+      wheelFormula: '4x2',
+      curbWeight: 7.9,
+      frontAxleEmptyWeight: 5.1,
+      rearAxleEmptyWeight: 2.8,
+      maxFifthWheelLoad: 19.0,
+      suspension: SuspensionType.air,
+    ),
+    TractorModel(
+      id: 'volvo-fh13',
+      brand: 'Volvo',
+      model: 'FH13',
+      wheelFormula: '4x2',
+      curbWeight: 8.0,
+      frontAxleEmptyWeight: 5.2,
+      rearAxleEmptyWeight: 2.8,
+      maxFifthWheelLoad: 18.0,
+      suspension: SuspensionType.air,
+    ),
+    TractorModel(
+      id: 'man-tgx',
+      brand: 'MAN',
+      model: 'TGX',
+      wheelFormula: '4x2',
+      curbWeight: 8.2,
+      frontAxleEmptyWeight: 5.3,
+      rearAxleEmptyWeight: 2.9,
+      maxFifthWheelLoad: 18.0,
+      suspension: SuspensionType.air,
+    ),
+
+    // Китайский автопром
+    TractorModel(
+      id: 'sitrak-c7h-4x2',
+      brand: 'Sitrak',
+      model: 'C7H MAX',
+      wheelFormula: '4x2',
+      curbWeight: 7.8,
+      frontAxleEmptyWeight: 5.0,
+      rearAxleEmptyWeight: 2.8,
+      maxFifthWheelLoad: 17.5,
+      suspension: SuspensionType.air,
+    ),
+    TractorModel(
+      id: 'shacman-x6000',
+      brand: 'Shacman',
+      model: 'X6000',
+      wheelFormula: '4x2',
+      curbWeight: 7.9,
+      frontAxleEmptyWeight: 5.1,
+      rearAxleEmptyWeight: 2.8,
+      maxFifthWheelLoad: 18.0,
+      suspension: SuspensionType.air,
+    ),
+    TractorModel(
+      id: 'faw-j7',
+      brand: 'FAW',
+      model: 'J7',
+      wheelFormula: '4x2',
+      curbWeight: 8.1,
+      frontAxleEmptyWeight: 5.2,
+      rearAxleEmptyWeight: 2.9,
+      maxFifthWheelLoad: 18.0,
+      suspension: SuspensionType.air,
+    ),
+
+    // Отечественные
+    TractorModel(
+      id: 'kamaz-54901',
+      brand: 'КАМАЗ',
+      model: '54901 (K5)',
+      wheelFormula: '4x2',
+      curbWeight: 8.2,
+      frontAxleEmptyWeight: 5.3,
+      rearAxleEmptyWeight: 2.9,
+      maxFifthWheelLoad: 18.6,
+      suspension: SuspensionType.mixed,
+    ),
+    TractorModel(
+      id: 'maz-5440',
+      brand: 'МАЗ',
+      model: '5440',
+      wheelFormula: '4x2',
+      curbWeight: 7.9,
+      frontAxleEmptyWeight: 5.1,
+      rearAxleEmptyWeight: 2.8,
+      maxFifthWheelLoad: 17.0,
+      suspension: SuspensionType.air,
+    ),
+
+    // Тяжеловозы (6x4)
+    TractorModel(
+      id: 'scania-r500-6x4',
+      brand: 'Scania',
+      model: 'R500',
+      wheelFormula: '6x4',
+      curbWeight: 9.5,
+      frontAxleEmptyWeight: 5.5,
+      rearAxleEmptyWeight: 4.0,
+      maxFifthWheelLoad: 21.0,
+      suspension: SuspensionType.air,
+    ),
+    TractorModel(
+      id: 'kamaz-65206',
+      brand: 'КАМАЗ',
+      model: '65206',
+      wheelFormula: '6x4',
+      curbWeight: 9.2,
+      frontAxleEmptyWeight: 5.4,
+      rearAxleEmptyWeight: 3.8,
+      maxFifthWheelLoad: 20.0,
       suspension: SuspensionType.air,
     ),
   ];
 
   /// Список доступных полуприцепов
-  static final List<TrailerModel> trailers = [
+  static final List<TrailerModel> trailerList = [
     TrailerModel(
+      id: 'schora-13-6',
       name: 'Стандартная штора 13.6м',
       type: TrailerType.curtainSide,
       axleCount: 3,
-      unladenWeight: 6800,
+      unladenWeight: 6.8,
       axleDistances: [1.31, 1.31],
     ),
     TrailerModel(
+      id: 'tonar-16-5-4',
       name: 'Тонар 16.5м (4 оси)',
       type: TrailerType.curtainSide,
       axleCount: 4,
-      unladenWeight: 8500,
+      unladenWeight: 8.5,
       axleDistances: [2.51, 1.31, 1.31], // Первая ось вынесена
       isFirstAxleLifted: false,
     ),
     TrailerModel(
+      id: 'tanker-nefaz',
       name: 'Полуприцеп-цистерна (Нефаз)',
       type: TrailerType.tanker,
       axleCount: 3,
-      unladenWeight: 7200,
+      unladenWeight: 7.2,
       axleDistances: [1.31, 1.31],
     ),
     TrailerModel(
-      name: 'Тонар-контейнеровоз',
-      type: TrailerType.container,
-      axleCount: 3,
-      unladenWeight: 5500,
-      axleDistances: [1.31, 1.31],
-    ),
-    TrailerModel(
+      id: 'reefer-standard',
       name: 'Полуприцеп рефрижератор',
       type: TrailerType.reefer,
       axleCount: 3,
-      unladenWeight: 8900,
+      unladenWeight: 8.9,
       axleDistances: [1.31, 1.31],
     ),
   ];
-
-  /// Метод расчета лимита нагрузки на тележку полуприцепа (кг)
-  /// Логика согласно нормативам РФ
-  static double getBogieLimit(TrailerModel trailer) {
-    if (trailer.name.contains('Тонар 16.5м (4 оси)')) {
-      if (trailer.isFirstAxleLifted) {
-        // Если 1-я ось поднята, лимит как у стандартной 3-оски
-        return 22500;
-      } else {
-        // Лимит 4-осной тележки
-        return 32000;
-      }
-    }
-
-    // Стандарт для 3-х осей
-    if (trailer.axleCount == 3) {
-      return 22500;
-    }
-
-    return 22500;
-  }
-
-  /// Метод проверки риска перегруза
-  /// Возвращает true, если риск критический
-  static bool checkOverloadRisk(TrailerModel trailer, double cargoMassTons) {
-    double limit = getBogieLimit(trailer);
-
-    if (trailer.name.contains('Тонар 16.5м (4 оси)')) {
-      if (!trailer.isFirstAxleLifted) {
-        // Лимит 32т, предупреждение при > 29т
-        return cargoMassTons > 29.0;
-      } else {
-        // Лимит 22.5т, предупреждение при > 23т
-        return cargoMassTons > 23.0;
-      }
-    }
-
-    // Для остальных 3-осных полуприцепов (Штора, Реф и др.)
-    return cargoMassTons > 23.0;
-  }
 }
