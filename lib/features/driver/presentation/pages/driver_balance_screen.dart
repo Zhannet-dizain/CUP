@@ -1,206 +1,216 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import '../providers/driver_provider.dart';
-import '../../domain/entities/driver_earnings.dart';
-import '../widgets/axle_calc_dialog.dart';
 
-class DriverBalanceScreen extends ConsumerWidget {
+// 1. СТРАНИЦА-ОБЕРТКА
+class DriverBalanceScreen extends StatelessWidget {
   const DriverBalanceScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final earnings = ref.watch(driverEarningsNotifierProvider);
-
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text('ЗАРАБОТНАЯ ПЛАТА',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildPaymentCalendar(context),
-            const SizedBox(height: 20),
-            _buildMileageKpi(earnings),
-            const SizedBox(height: 20),
-            _buildEarningsCalculator(earnings),
-            const SizedBox(height: 20),
-            _buildToolsSection(context),
-          ],
+        title: const Text(
+          'Личный кабинет водителя: Баланс',
+          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        shape: const Border(bottom: BorderSide(color: Color(0xFF334155), width: 1)),
+      ),
+      body: const SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: EarningsSimulator(advanceFrom1C: 15000.0),
       ),
     );
   }
+}
 
-  Widget _buildPaymentCalendar(BuildContext context) {
-    final now = DateTime.now();
-    
-    String getPaymentText(int day, String label) {
-      DateTime paymentDate = DateTime(now.year, now.month, day);
-      if (paymentDate.isBefore(DateTime(now.year, now.month, now.day))) {
-         paymentDate = DateTime(now.year, now.month + 1, day);
-      }
-      
-      bool isWeekend = paymentDate.weekday == DateTime.saturday || paymentDate.weekday == DateTime.sunday;
-      
-      if (isWeekend) {
-        int subtractDays = paymentDate.weekday == DateTime.saturday ? 1 : 2;
-        DateTime adjustedDate = paymentDate.subtract(Duration(days: subtractDays));
-        return '$label: перенесена на Пятницу (${DateFormat('dd.MM').format(adjustedDate)})';
-      }
-      
-      return '$label: ${DateFormat('dd.MM').format(paymentDate)}';
+// 2. ВИДЖЕТ КАЛЬКУЛЯТОРА
+class EarningsSimulator extends StatefulWidget {
+  final double advanceFrom1C;
+
+  const EarningsSimulator({
+    super.key,
+    required this.advanceFrom1C,
+  });
+
+  @override
+  State<EarningsSimulator> createState() => _EarningsSimulatorState();
+}
+
+class _EarningsSimulatorState extends State<EarningsSimulator> {
+  String _truckType = 'штора_13'; 
+
+  double _mileage = 4500; 
+  
+  int _moscowTripsCount = 0;    
+  int _localTripsCount = 0;     
+  int _loadedExtraCount = 2;    
+  int _uncurtainedCount = 3;    
+  int _cargoSecuredCount = 2;   
+  int _expressCount = 2;        
+  int _extraPoints = 0;         
+
+  late TextEditingController _mileageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _mileageController = TextEditingController(text: _mileage.toInt().toString());
+  }
+
+  @override
+  void dispose() {
+    _mileageController.dispose();
+    super.dispose();
+  }
+
+  double _getRatePerKm() {
+    switch (_truckType) {
+      case 'штора_13': return 12.0;
+      case 'штора_16': return 13.0;
+      case 'реф': return 13.0;
+      case 'контейнер': return 13.5;
+      default: return 12.0;
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final formatter = NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0);
+    
+    double ratePerKm = _getRatePerKm();
+    double kmEarnings = _mileage * ratePerKm;
+    
+    double moscowEarnings = _moscowTripsCount * 5000.0;
+    double localEarnings = _localTripsCount * 3100.0;
+    
+    double otherExtras = (_loadedExtraCount * 1000) + 
+                         (_uncurtainedCount * 500) + 
+                         (_cargoSecuredCount * 1000) + 
+                         (_expressCount * 1000) + 
+                         (_extraPoints * 500);
+    
+    double totalGross = kmEarnings + moscowEarnings + localEarnings + otherExtras;
+    double ndfl = totalGross * 0.13;
+    double finalPayout = totalGross - ndfl - widget.advanceFrom1C;
 
     return Card(
       color: const Color(0xFF1E293B),
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFF334155))),
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xFF334155)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Календарь выплат',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            _calendarItem('Суточные', 'каждый Вторник'),
-            _calendarItem('Аванс', getPaymentText(30, 'Выплата 30-го')),
-            _calendarItem('Зарплата', getPaymentText(15, 'Выплата 15-го')),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _calendarItem(String title, String trailing) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(color: Color(0xFF94A3B8))),
-          Text(trailing,
-              style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMileageKpi(DriverEarnings earnings) {
-    double progress = earnings.currentMonthKmDriven / earnings.kmTarget;
-    if (progress > 1.0) progress = 1.0;
-
-    // Use a simple list for months as 'ru_RU' locale might not be initialized
-    final months = [
-      'Январе', 'Феврале', 'Марте', 'Апреле', 'Мае', 'Июне',
-      'Июле', 'Августе', 'Сентябре', 'Октябре', 'Ноябре', 'Декабре'
-    ];
-    final String currentMonthName = months[DateTime.now().month - 1];
-
-    return Card(
-      color: const Color(0xFF1E293B),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFF334155))),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Заработано в $currentMonthName (текущий месяц)',
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: progress,
-              backgroundColor: const Color(0xFF334155),
-              color: const Color(0xFF38BDF8),
-              minHeight: 12,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            const SizedBox(height: 12),
+            const Text('Калькулятор-симулятор путевого листа',
+                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 14),
+            
+            const Text('Тип полуприцепа и базовая ставка:', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+            const SizedBox(height: 6),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Выполнено: ${earnings.currentMonthKmDriven.toInt()} км',
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                ),
-                Text(
-                  'Цель: ${earnings.kmTarget.toInt()} км',
-                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                ),
+                _truckTypeButton('штора_13', '13м Кёгель (12₽)'),
+                const SizedBox(width: 4),
+                _truckTypeButton('штора_16', '16м ТОНАР (13₽)'),
+                const SizedBox(width: 4),
+                _truckTypeButton('реф', 'Реф 13м (13₽)'),
+                const SizedBox(width: 4),
+                _truckTypeButton('контейнер', 'Контейнер (13.5₽)'),
               ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
+            const SizedBox(height: 20),
 
-  Widget _buildEarningsCalculator(DriverEarnings earnings) {
-    final kmEarnings = earnings.currentMonthKmDriven * earnings.perKmRate;
-    final totalGross = kmEarnings + earnings.accumulatedDailyAllowances + earnings.currentBonuses - earnings.currentDeductions;
-    final ndfl = totalGross * 0.13;
-    final totalNet = totalGross - ndfl;
-
-    final formatter = NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0);
-
-    return Card(
-      color: const Color(0xFF1E293B),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: Color(0xFF334155))),
-      child: Theme(
-        data: ThemeData.dark().copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          title: const Text('Калькулятор заработка',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold)),
-          childrenPadding: const EdgeInsets.all(16),
-          children: [
-            _calcRow('Заработано по пробегу (${earnings.currentMonthKmDriven.toInt()} км × ${earnings.perKmRate} ₽)', kmEarnings),
-            _calcRow('Суточные к ближ. вторнику', earnings.accumulatedDailyAllowances),
-            _calcRow('Премия за экономию (СКАУТ)', earnings.currentBonuses, color: Colors.greenAccent),
-            _calcRow('Удержания (Штрафы ГИБДД)', -earnings.currentDeductions, color: Colors.redAccent),
-            const Divider(color: Color(0xFF334155), height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const Text('Общий пробег по ПЛ:', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+                Row(
                   children: [
-                    Text('Итого чистыми на руки',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold)),
-                    Text('(за вычетом НДФЛ 13%)',
-                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+                    SizedBox(
+                      width: 80,
+                      height: 30,
+                      child: TextField(
+                        controller: _mileageController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold, fontSize: 14),
+                        textAlign: TextAlign.right,
+                        decoration: const InputDecoration(contentPadding: EdgeInsets.zero, isDense: true),
+                        onChanged: (val) {
+                          double? parsed = double.tryParse(val);
+                          if (parsed != null) setState(() => _mileage = parsed.clamp(0, 30000));
+                        },
+                      ),
+                    ),
+                    const Text(' км', style: TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold)),
                   ],
                 ),
-                Text(formatter.format(totalNet),
-                    style: const TextStyle(
-                        color: Color(0xFF22C55E),
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold)),
               ],
+            ),
+            Slider(
+              value: _mileage,
+              min: 0, max: 30000,
+              activeColor: const Color(0xFF38BDF8),
+              inactiveColor: const Color(0xFF334155),
+              onChanged: (val) {
+                setState(() {
+                  _mileage = val.roundToDouble();
+                  _mileageController.text = _mileage.toInt().toString();
+                });
+              },
+            ),
+            
+            const SizedBox(height: 8),
+            const Text('Дополнительные доплаты за рейс:', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+            const Divider(color: Color(0xFF334155)),
+
+            _buildCounterRow('Рейсы по Москве и МО (+5 000 ₽):', _moscowTripsCount, (val) => setState(() => _moscowTripsCount = val)),
+            _buildCounterRow('Рейсы по месту в регионах (+3 100 ₽):', _localTripsCount, (val) => setState(() => _localTripsCount = val)),
+            _buildCounterRow('Количество доп. погрузок (+1 000 ₽):', _loadedExtraCount, (val) => setState(() => _loadedExtraCount = val)),
+            _buildCounterRow('Количество растентовок (+500 ₽):', _uncurtainedCount, (val) => setState(() => _uncurtainedCount = val)),
+            _buildCounterRow('Крепление груза от 10 ремней (+1 000 ₽):', _cargoSecuredCount, (val) => setState(() => _cargoSecuredCount = val)),
+            _buildCounterRow('Количество экспресс-плеч (+1 000 ₽):', _expressCount, (val) => setState(() => _expressCount = val)),
+            _buildCounterRow('Дополнительные точки (+500 ₽/шт):', _extraPoints, (val) => setState(() => _extraPoints = val)),
+            
+            const Divider(color: Color(0xFF334155), height: 28),
+
+            _resultRow('Заработано по километражу:', kmEarnings, formatter),
+            
+            if (_moscowTripsCount > 0)
+              _resultRow('Доплата за рейсы по Москве и МО:', moscowEarnings, formatter, color: const Color(0xFF38BDF8)),
+            
+            if (_localTripsCount > 0)
+              _resultRow('Доплата за работу по месту в рег.:', localEarnings, formatter, color: const Color(0xFF38BDF8)),
+            
+            if (otherExtras > 0)
+              _resultRow('Прочие надбавки (растентовки/ремни/точки):', otherExtras, formatter),
+              
+            _resultRow('Удержан НДФЛ (13%):', -ndfl, formatter, color: const Color(0xFFEF4444)),
+            _resultRow('Уже выплаченный аванс (30 числа):', -widget.advanceFrom1C, formatter, color: const Color(0xFFF59E0B)),
+
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(8)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Остаток к выплате в день ЗП:', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
+                  Text(formatter.format(finalPayout), 
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: finalPayout >= 0 ? const Color(0xFF22C55E) : const Color(0xFFEF4444))),
+                ],
+              ),
             ),
           ],
         ),
@@ -208,74 +218,71 @@ class DriverBalanceScreen extends ConsumerWidget {
     );
   }
 
-  Widget _calcRow(String label, double value, {Color? color}) {
-    final formatter = NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0);
+  Widget _truckTypeButton(String type, String label) {
+    bool isSelected = _truckType == type;
+    return Expanded(
+      child: SizedBox(
+        height: 38,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isSelected ? const Color(0xFF38BDF8) : const Color(0xFF0F172A),
+            foregroundColor: isSelected ? Colors.black : Colors.white,
+            padding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+              side: BorderSide(color: isSelected ? const Color(0xFF38BDF8) : const Color(0xFF334155)),
+            ),
+            elevation: 0,
+          ),
+          onPressed: () => setState(() => _truckType = type),
+          child: Text(
+            label, 
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold), 
+            textAlign: TextAlign.center, // ИСПРАВЛЕНО ТУТ
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCounterRow(String title, int value, Function(int) onChange) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13))),
-          Text(formatter.format(value),
-              style: TextStyle(color: color ?? Colors.white, fontWeight: FontWeight.bold)),
+          Text(title, style: const TextStyle(color: Colors.white, fontSize: 13)),
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove, size: 18, color: Color(0xFF94A3B8)), 
+                onPressed: value > 0 ? () => onChange(value - 1) : null
+              ),
+              SizedBox(
+                width: 20,
+                child: Text('$value', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+              ),
+              IconButton(
+                icon: const Icon(Icons.add, size: 18, color: Color(0xFF94A3B8)), 
+                onPressed: () => onChange(value + 1)
+              ),
+            ],
+          )
         ],
       ),
     );
   }
 
-  Widget _buildToolsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'ИНСТРУМЕНТЫ',
-          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => const AxleCalcDialog(),
-              );
-            },
-            icon: const Icon(Icons.calculate_outlined),
-            label: const Text('Калькулятор развесовки груза', style: TextStyle(fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E293B),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFF334155)),
-              ),
-              elevation: 0,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF334155).withOpacity(0.3),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.info_outline, color: Color(0xFF38BDF8), size: 20),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Любые финансовые споры решаются только личным звонком начальнику колонны.',
-                  style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+  Widget _resultRow(String label, double val, NumberFormat f, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13)),
+          Text(f.format(val), style: TextStyle(color: color ?? Colors.white, fontSize: 14, fontWeight: color != null ? FontWeight.bold : FontWeight.normal)),
+        ],
+      ),
     );
   }
 }

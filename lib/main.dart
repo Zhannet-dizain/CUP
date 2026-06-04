@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'features/driver/presentation/pages/driver_balance_screen.dart';
+import 'features/fleet/presentation/pages/dashboard_screen.dart'; // Импортируем ЦУП диспетчера
 
 void main() {
   runApp(
@@ -16,15 +16,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Личный кабинет водителя',
+      title: 'ЦУП Автопарка',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      // Поставили точное имя класса, которое вы нашли!
-      home: DriverBalanceScreen(), 
+      home: const DashboardScreen(), // Теперь главным экраном будет диспетчерская
     );
   }
 }

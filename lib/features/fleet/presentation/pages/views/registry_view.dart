@@ -22,17 +22,20 @@ class _RegistryViewState extends ConsumerState<RegistryView> {
       final matchesSearch = v.licensePlate.toLowerCase().contains(searchQuery.toLowerCase()) ||
           v.brandModel.toLowerCase().contains(searchQuery.toLowerCase()) ||
           (v.driver?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false);
-      final matchesColumn = columnFilter == null || v.column == columnFilter;
-      return matchesSearch && matchesColumn;
+      
+      // Фильтруем по статусу (в рейсе / на базе)
+      final matchesStatus = columnFilter == null || v.status.label == columnFilter;
+      return matchesSearch && matchesStatus;
     }).toList();
 
-    final columns = vehicles.map((v) => v.column).toSet().toList()..sort();
+    // Сортировка: машины с большим пробегом вверху
+    final sortedVehicles = List.from(filteredVehicles)..sort((a, b) => b.mileage.compareTo(a.mileage));
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          _buildFilters(columns),
+          _buildFilters(),
           const SizedBox(height: 16),
           Expanded(
             child: Card(
@@ -50,20 +53,32 @@ class _RegistryViewState extends ConsumerState<RegistryView> {
                       DataColumn(label: Text('Водитель')),
                       DataColumn(label: Text('Колонна')),
                       DataColumn(label: Text('Местоположение')),
-                      DataColumn(label: Text('Пробег (км)')),
+                      DataColumn(label: Text('Пробег (км)'), numeric: true),
                     ],
-                    rows: filteredVehicles.map((v) => DataRow(
-                      onSelectChanged: (_) => _showUpdateModal(v),
-                      cells: [
-                        DataCell(Text(v.licensePlate, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                        DataCell(Text(v.brandModel)),
-                        DataCell(_statusChip(v)),
-                        DataCell(Text(v.driver ?? '-')),
-                        DataCell(Text(v.column)),
-                        DataCell(Text(v.location)),
-                        DataCell(Text(v.mileage.toInt().toString())),
-                      ],
-                    )).toList(),
+                    rows: sortedVehicles.map((v) {
+                      final isCriticalMileage = v.mileage > 100000;
+                      
+                      return DataRow(
+                        onSelectChanged: (_) => _showUpdateModal(v),
+                        cells: [
+                          DataCell(Text(v.licensePlate, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
+                          DataCell(Text(v.brandModel)),
+                          DataCell(_buildStatusCell(v)),
+                          DataCell(Text(v.driver ?? '-')),
+                          DataCell(Text(v.column)),
+                          DataCell(Text(v.location)),
+                          DataCell(
+                            Text(
+                              v.mileage.toInt().toString(),
+                              style: TextStyle(
+                                fontWeight: isCriticalMileage ? FontWeight.bold : FontWeight.normal,
+                                color: isCriticalMileage ? Colors.redAccent : Colors.white70,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
@@ -74,61 +89,62 @@ class _RegistryViewState extends ConsumerState<RegistryView> {
     );
   }
 
-  Widget _buildFilters(List<String> columns) {
-    return Row(
+  Widget _buildFilters() {
+    final filters = ['Все ТС', 'В рейсе', 'На базе'];
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: TextField(
-            onChanged: (val) => setState(() => searchQuery = val),
-            decoration: InputDecoration(
-              hintText: 'Поиск по госномеру, модели или водителю...',
-              prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
-              filled: true,
-              fillColor: const Color(0xFF1E293B),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF334155)),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0),
-            ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: filters.map((label) {
+              final isActive = (label == 'Все ТС' && columnFilter == null) || (columnFilter == label);
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: FilterChip(
+                  label: Text(label),
+                  selected: isActive,
+                  onSelected: (bool selected) {
+                    setState(() {
+                      columnFilter = (label == 'Все ТС') ? null : label;
+                    });
+                  },
+                  selectedColor: const Color(0xFF38BDF8),
+                  backgroundColor: const Color(0xFF1E293B),
+                  labelStyle: TextStyle(color: isActive ? Colors.white : const Color(0xFF94A3B8)),
+                ),
+              );
+            }).toList(),
           ),
         ),
-        const SizedBox(width: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E293B),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFF334155)),
-          ),
-          child: DropdownButton<String>(
-            value: columnFilter,
-            hint: const Text('Все колонны', style: TextStyle(color: Color(0xFF94A3B8))),
-            underline: const SizedBox(),
-            dropdownColor: const Color(0xFF1E293B),
-            items: [
-              const DropdownMenuItem(value: null, child: Text('Все колонны')),
-              ...columns.map((c) => DropdownMenuItem(value: c, child: Text(c))),
-            ],
-            onChanged: (val) => setState(() => columnFilter = val),
+        const SizedBox(height: 12),
+        TextField(
+          onChanged: (val) => setState(() => searchQuery = val),
+          decoration: InputDecoration(
+            hintText: 'Поиск по госномеру, модели или водителю...',
+            prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8)),
+            filled: true,
+            fillColor: const Color(0xFF1E293B),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 0),
           ),
         ),
       ],
     );
   }
 
-  Widget _statusChip(Vehicle v) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: v.status.color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: v.status.color.withOpacity(0.5)),
-      ),
-      child: Text(
-        v.status.label,
-        style: TextStyle(color: v.status.color, fontSize: 11, fontWeight: FontWeight.bold),
-      ),
+  Widget _buildStatusCell(Vehicle v) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.circle, size: 8, color: v.status.color),
+        const SizedBox(width: 6),
+        Text(v.status.label, style: TextStyle(color: v.status.color, fontSize: 13)),
+      ],
     );
   }
 

@@ -1,3 +1,4 @@
+import '../../../driver/presentation/pages/driver_balance_screen.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,14 +63,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             const Icon(Icons.circle, color: Color(0xFF22C55E), size: 32),
             const SizedBox(width: 12),
-            Column(
+            const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'ЦУП Автопарка v1.2 MVP+',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
-                const Text(
+                Text(
                   'Система мониторинга статусов и контроля простоев',
                   style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8)),
                 ),
@@ -97,17 +98,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ),
             const Spacer(),
-            const Row(
+            
+            // --- НАША КНОПКА ПЕРЕХОДА В КОШЕЛЕК ВОДИТЕЛЯ ---
+            TextButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  DriverBalanceScreen()),
+                );
+              },
+              icon: const Icon(Icons.account_balance_wallet, color: Color(0xFF38BDF8), size: 18),
+              label: const Text('Кабинет водителя', style: TextStyle(color: Color(0xFF38BDF8))),
+            ),
+            const SizedBox(width: 24),
+            
+            Row(
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('Диспетчер парка', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    Text('Смирнова А.В.', style: TextStyle(fontSize: 12)),
+                    const Text('Диспетчер парка', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    Text('Смирнова А.В.', style: TextStyle(fontSize: 12, color: Colors.grey[300])),
                   ],
                 ),
-                SizedBox(width: 12),
-                CircleAvatar(
+                const SizedBox(width: 12),
+                const CircleAvatar(
                   radius: 18,
                   backgroundColor: Color(0xFF334155),
                   child: Icon(Icons.person, color: Colors.white, size: 20),

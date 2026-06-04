@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../providers/vehicle_provider.dart';
 import '../../../domain/entities/vehicle_status.dart';
 import '../../../domain/entities/vehicle.dart';
-import '../../../domain/entities/fleet_event.dart';
-import '../../widgets/status_update_modal.dart';
 
 class MonitoringView extends ConsumerWidget {
   const MonitoringView({super.key});
@@ -13,7 +10,6 @@ class MonitoringView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vehicles = ref.watch(vehicleListProvider);
-    final events = ref.watch(fleetEventsProvider);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -32,7 +28,7 @@ class MonitoringView extends ConsumerWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   flex: 2,
-                  child: _buildDispatcherFeedSection(events),
+                  child: _buildPlaceholderDispatcherFeed(),
                 ),
               ],
             ),
@@ -51,10 +47,7 @@ class MonitoringView extends ConsumerWidget {
       v.status == VehicleStatus.underRepair ||
       v.status == VehicleStatus.waitingRepair ||
       v.status == VehicleStatus.waitingParts ||
-      v.status == VehicleStatus.idleNoDriver ||
-      v.status == VehicleStatus.documentsBlocked ||
-      v.fuelLevel < 20 ||
-      v.engineTemp > 100
+      v.status == VehicleStatus.idleNoDriver 
     ).length;
 
     return Card(
@@ -84,7 +77,7 @@ class MonitoringView extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Text('Среднее время перевода в "Ремонт" сократилось на 12% за сегодня.', style: TextStyle(fontSize: 12)),
+                      const Text('Среднее время перевода в "Ремонт" сократилось на 12% за сегодня.', style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
                     ],
                   ),
                 ),
@@ -99,12 +92,11 @@ class MonitoringView extends ConsumerWidget {
   }
 
   Widget _buildColorTimeline(List<Vehicle> vehicles) {
-    // Simplified category grouping for visualization
     final categories = {
-      const Color(0xFF22C55E): [VehicleStatus.inTransit, VehicleStatus.serviceable, VehicleStatus.washing],
-      const Color(0xFF38BDF8): [VehicleStatus.waitingLoading, VehicleStatus.waitingUnloading, VehicleStatus.driverResting, VehicleStatus.customsClearance, VehicleStatus.disinfection],
-      const Color(0xFFFBBF24): [VehicleStatus.waitingRepair, VehicleStatus.waitingParts, VehicleStatus.maintenance, VehicleStatus.idleNoDriver, VehicleStatus.documentsBlocked],
-      const Color(0xFFEF4444): [VehicleStatus.underRepair, VehicleStatus.accident, VehicleStatus.noDriver, VehicleStatus.driverResigned],
+      const Color(0xFF22C55E): [VehicleStatus.inTransit, VehicleStatus.serviceable],
+      const Color(0xFF38BDF8): [VehicleStatus.waitingLoading, VehicleStatus.waitingUnloading],
+      const Color(0xFFFBBF24): [VehicleStatus.waitingRepair, VehicleStatus.waitingParts, VehicleStatus.maintenance, VehicleStatus.idleNoDriver],
+      const Color(0xFFEF4444): [VehicleStatus.underRepair, VehicleStatus.accident],
     };
 
     return Container(
@@ -136,10 +128,7 @@ class MonitoringView extends ConsumerWidget {
       v.status == VehicleStatus.underRepair ||
       v.status == VehicleStatus.waitingRepair ||
       v.status == VehicleStatus.waitingParts ||
-      v.status == VehicleStatus.idleNoDriver ||
-      v.status == VehicleStatus.documentsBlocked ||
-      v.fuelLevel < 20 ||
-      v.engineTemp > 100
+      v.status == VehicleStatus.idleNoDriver
     ).toList();
 
     return Column(
@@ -147,7 +136,7 @@ class MonitoringView extends ConsumerWidget {
       children: [
         const Padding(
           padding: EdgeInsets.only(bottom: 12.0),
-          child: Text('КОНТРОЛЬ РИСКОВ ПРОСТОЕВ', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+          child: Text('КОНТРОЛЬ РИСКОВ ПРОСТОЕВ', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: Colors.white70)),
         ),
         Expanded(
           child: ListView.builder(
@@ -160,80 +149,65 @@ class MonitoringView extends ConsumerWidget {
   }
 
   Widget _buildRiskCard(BuildContext context, Vehicle vehicle) {
-    final isCritical = vehicle.status == VehicleStatus.accident || vehicle.engineTemp > 100;
-    final loss = (vehicle.statusDuration.inMinutes / 60.0) * vehicle.hourlyCost;
+    final isCritical = vehicle.status == VehicleStatus.accident;
+    final hours = vehicle.statusDuration.inMinutes / 60.0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        onTap: () => _showUpdateModal(context, vehicle),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Container(
-                width: 4,
-                height: 60,
-                color: isCritical ? Colors.red : Colors.orange,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 60,
+              color: isCritical ? const Color(0xFFEF4444) : const Color(0xFFFBBF24),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(vehicle.licensePlate, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                      const SizedBox(width: 8),
+                      Text(vehicle.brandModel, style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8))),
+                      const Spacer(),
+                      Text(
+                        'Простой: ${hours.toStringAsFixed(1)} ч. / ${isCritical ? "КРИТИЧЕСКИЙ РИСК" : "ПЛАНОВЫЙ ОЖИДАНИЕ"}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: isCritical ? const Color(0xFFEF4444) : const Color(0xFFFBBF24),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.person, size: 14, color: Color(0xFF64748B)),
+                      const SizedBox(width: 4),
+                      Text(vehicle.driver ?? '-', style: const TextStyle(fontSize: 12, color: Color(0xFFCBD5E1))),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(vehicle.licensePlate, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(width: 8),
-                        Text(vehicle.brandModel, style: TextStyle(fontSize: 12, color: const Color(0xFF94A3B8))),
-                        const Spacer(),
-                        if (loss > 0)
-                           Text(
-                             'Убыток: ${NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0).format(loss)}',
-                             style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14),
-                           ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.person, size: 14, color: Color(0xFF64748B)),
-                        const SizedBox(width: 4),
-                        Text(vehicle.driver ?? '-', style: const TextStyle(fontSize: 12)),
-                        const SizedBox(width: 16),
-                        _buildWarningBadge(vehicle),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildWarningBadge(Vehicle vehicle) {
-    if (vehicle.status == VehicleStatus.accident) {
-      return const _Badge(text: 'ДТП', color: Colors.red, icon: Icons.report_problem);
-    }
-    if (vehicle.engineTemp > 100) {
-      return _Badge(text: 'Температура ДВС: ${vehicle.engineTemp.toInt()}°C!', color: Colors.red, icon: Icons.thermostat);
-    }
-    if (vehicle.fuelLevel < 20) {
-      return _Badge(text: 'Низкое топливо: ${vehicle.fuelLevel.toInt()}%', color: Colors.orange, icon: Icons.local_gas_station);
-    }
-    return _Badge(text: vehicle.status.label, color: vehicle.status.color, icon: vehicle.status.icon);
-  }
-
-  Widget _buildDispatcherFeedSection(List<FleetEvent> events) {
+  Widget _buildPlaceholderDispatcherFeed() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
           padding: EdgeInsets.only(bottom: 12.0),
-          child: Text('ЛЕНТА ДИСПЕТЧЕРА', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+          child: Text('ЛЕНТА ДИСПЕТЧЕРА', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: Colors.white70)),
         ),
         Expanded(
           child: Container(
@@ -242,10 +216,12 @@ class MonitoringView extends ConsumerWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: const Color(0xFF334155)),
             ),
-            child: ListView.builder(
+            child: ListView(
               padding: const EdgeInsets.all(12),
-              itemCount: events.length,
-              itemBuilder: (context, index) => _buildFeedItem(events[index]),
+              children: [
+                _feedItem('А112АА 797', '12:18', 'Перевод ТС из Готов в В рейс', 'Выезд в рейс по накладной #4521', 'ДИСПЕТЧЕР', Colors.green),
+                _feedItem('Н777МА 77', '14:48', 'Перевод ТС из В пути в ДТП', 'ДТП на перекрестке, вызваны службы', 'МЕХАНИК', Colors.red),
+              ],
             ),
           ),
         ),
@@ -253,16 +229,13 @@ class MonitoringView extends ConsumerWidget {
     );
   }
 
-  Widget _buildFeedItem(FleetEvent event) {
+  Widget _feedItem(String plate, String time, String text, String reason, String role, Color color) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: Icon(Icons.circle, size: 10, color: event.newStatus.color),
-          ),
+          Icon(Icons.circle, size: 10, color: color),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -270,86 +243,25 @@ class MonitoringView extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Text(event.licensePlate, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    Text(plate, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
                     const SizedBox(width: 8),
-                    Text(
-                      DateFormat('HH:mm').format(event.timestamp),
-                      style: TextStyle(fontSize: 11, color: const Color(0xFF94A3B8)),
-                    ),
+                    Text(time, style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF334155),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        event.initiatorRole,
-                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    Text(role, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF64748B))),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  'Перевод ТС из ${event.oldStatus.label} в ${event.newStatus.label}',
-                  style: const TextStyle(fontSize: 12),
+                Text(text, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                Container(
+                  margin: const EdgeInsets.only(top: 4),
+                  padding: const EdgeInsets.all(6),
+                  width: double.infinity,
+                  decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(4)),
+                  child: Text('Причина: $reason', style: const TextStyle(fontSize: 11, color: Color(0xFF94A3B8), fontStyle: FontStyle.italic)),
                 ),
-                if (event.reason != null)
-                  Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.all(6),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      'Причина: ${event.reason}',
-                      style: TextStyle(fontSize: 11, color: const Color(0xFFCBD5E1), fontStyle: FontStyle.italic),
-                    ),
-                  ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  void _showUpdateModal(BuildContext context, Vehicle vehicle) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (context) => StatusUpdateModal(vehicle: vehicle),
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  final String text;
-  final Color color;
-  final IconData icon;
-
-  const _Badge({required this.text, required this.color, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Text(text, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
         ],
       ),
     );
