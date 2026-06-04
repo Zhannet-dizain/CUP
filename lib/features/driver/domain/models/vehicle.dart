@@ -45,6 +45,12 @@ class TrailerModel {
   /// Расстояния между осями (м)
   final List<double> axleDistances;
 
+  /// Полная длина кузова (м)
+  final double length;
+
+  /// Расстояние от шкворня (Kingpin) до центра тележки (м)
+  final double kingpinToBogieCenter;
+
   /// Флаг состояния первой подъемной оси
   bool isFirstAxleLifted;
 
@@ -55,6 +61,8 @@ class TrailerModel {
     required this.axleCount,
     required this.unladenWeight,
     required this.axleDistances,
+    required this.length,
+    required this.kingpinToBogieCenter,
     this.isFirstAxleLifted = false,
   });
 }
@@ -78,6 +86,12 @@ class TractorModel {
   /// Макс. нагрузка на ССУ (т)
   final double maxFifthWheelLoad;
 
+  /// Колесная база (расстояние от передней оси до центра задней тележки) (м)
+  final double wheelbase;
+
+  /// Смещение ССУ (седла) относительно центра задней оси/тележки (м, обычно вперед - положительное)
+  final double fifthWheelOffset;
+
   final SuspensionType suspension;
 
   TractorModel({
@@ -89,6 +103,8 @@ class TractorModel {
     required this.frontAxleEmptyWeight,
     required this.rearAxleEmptyWeight,
     required this.maxFifthWheelLoad,
+    required this.wheelbase,
+    required this.fifthWheelOffset,
     required this.suspension,
   });
 
@@ -97,24 +113,12 @@ class TractorModel {
 
 /// Константы ограничений РФ (Постановление №2200)
 class RuWeightLimits {
-  /// Лимит полной массы автопоезда (5 осей)
   static const double totalMass5Axles = 40.0;
-
-  /// Лимит полной массы автопоезда (6 осей)
   static const double totalMass6Axles = 44.0;
-
-  /// Лимит на одиночную ось (рулевую)
   static const double singleAxleLimit = 10.0;
-
-  /// Лимит на двухосную тележку (ведущая группа или прицеп)
-  /// При расстоянии 1.3 - 1.8 м
-  static const double tandemAxleLimit = 16.0; // 8.0 на ось при пневмоподвеске
-
-  /// Лимит на трехосную тележку прицепа (1.3 - 1.4 м)
-  static const double tripleAxleLimit = 21.0; // 7.0 на ось
-
-  /// Лимит на четырехосную тележку (5.5 - 6.5 на ось)
-  static const double quadAxleLimit = 26.0; // Примерный усредненный лимит
+  static const double tandemAxleLimit = 16.0;
+  static const double tripleAxleLimit = 21.0;
+  static const double quadAxleLimit = 26.0;
 }
 
 /// Результат расчета нагрузки на ось

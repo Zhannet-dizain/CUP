@@ -40,15 +40,32 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final activeTab = ref.watch(navigationProvider);
 
-    return Scaffold(
-      appBar: _buildHeader(),
-      body: Column(
-        children: [
-          _buildNavigationMenu(activeTab),
-          Expanded(
-            child: _buildActiveView(activeTab),
+    return Theme(
+      data: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0F172A),
+        cardTheme: CardThemeData(
+          color: const Color(0xFF1E293B),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: Color(0xFF334155)),
           ),
-        ],
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0F172A),
+          elevation: 0,
+        ),
+      ),
+      child: Scaffold(
+        appBar: _buildHeader(),
+        body: Column(
+          children: [
+            _buildNavigationMenu(activeTab),
+            Expanded(
+              child: _buildActiveView(activeTab),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -56,6 +73,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   PreferredSizeWidget _buildHeader() {
     return AppBar(
       titleSpacing: 0,
+      backgroundColor: const Color(0xFF0F172A),
       title: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Row(
@@ -97,13 +115,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ),
             const Spacer(),
+            const Text(
+              'ТС в рейсе: 32 • На базе: 16',
+              style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(width: 24),
             const Row(
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('Диспетчер парка', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    Text('Смирнова А.В.', style: TextStyle(fontSize: 12)),
+                    Text('Оператор:', style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8))),
+                    Text('Диспетчер-1', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
                   ],
                 ),
                 SizedBox(width: 12),

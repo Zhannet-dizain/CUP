@@ -161,7 +161,7 @@ class MonitoringView extends ConsumerWidget {
 
   Widget _buildRiskCard(BuildContext context, Vehicle vehicle) {
     final isCritical = vehicle.status == VehicleStatus.accident || vehicle.engineTemp > 100;
-    final loss = (vehicle.statusDuration.inMinutes / 60.0) * vehicle.hourlyCost;
+    final hours = vehicle.statusDuration.inMinutes / 60.0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -187,11 +187,14 @@ class MonitoringView extends ConsumerWidget {
                         const SizedBox(width: 8),
                         Text(vehicle.brandModel, style: TextStyle(fontSize: 12, color: const Color(0xFF94A3B8))),
                         const Spacer(),
-                        if (loss > 0)
-                           Text(
-                             'Убыток: ${NumberFormat.currency(locale: 'ru_RU', symbol: '₽', decimalDigits: 0).format(loss)}',
-                             style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14),
-                           ),
+                        Text(
+                          'Простой: ${hours.toStringAsFixed(1)} ч. / ${isCritical ? "КРИТИЧЕСКИЙ РИСК" : "ПЛАНОВЫЙ ОЖИДАНИЕ"}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: isCritical ? const Color(0xFFEF4444) : const Color(0xFFFBBF24),
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),

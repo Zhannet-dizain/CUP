@@ -1,76 +1,90 @@
 import '../models/vehicle.dart';
 
-/// Математическое ядро расчета осевых нагрузок
+/// Математическое ядро расчета осевых нагрузок на основе метода моментов сил (правило рычага)
 class AxleWeightEngine {
   /// Основная функция расчета развесовки
   static CalculationReport calculate({
     required TractorModel tractor,
     required TrailerModel trailer,
     required double cargoWeight,
+    required double cargoOffset, // Смещение центра тяжести груза от передней стенки (м)
+    required double cargoLength, // Длина груза (м)
   }) {
-    // 1. Полный вес полуприцепа с грузом
-    final double totalTrailerWeight = trailer.unladenWeight + cargoWeight;
+    // 1. Расчет центра тяжести груза (COG)
+    // По условию COG - это середина длины груза + смещение от передней стенки
+    final double cargoCOGFromFront = cargoOffset + (cargoLength / 2.0);
 
-    // 2. Распределение веса полуприцепа между ССУ и тележкой
-    // Для стандартных сцепок (MVP):
-    // Примерно 35% уходит на седло (ССУ), 65% на тележку полуприцепа.
-    // Эти коэффициенты могут меняться от длины и центра масс, но для MVP используем статику.
-    double fifthWheelLoad = totalTrailerWeight * 0.35;
-    double trailerBogieLoad = totalTrailerWeight * 0.65;
+    // 2. Распределение веса груза в полуприцепе ( Lever Rule )
+    // Точки опоры: Шкворень (Kingpin) и Центр тележки прицепа (Bogie Center)
+    // L_trailer = kingpinToBogieCenter
+    // Вес на тележку = Вес_груза * (Дистанция_от_шкворня / L_trailer)
+    // Вес на шкворень = Вес_груза - Вес_на_тележку
 
-    // 3. Распределение нагрузки на ССУ между осями тягача
-    // По условию: 20% на перед, 80% на зад
-    double tractorFrontAddition = fifthWheelLoad * 0.20;
-    double tractorRearAddition = fifthWheelLoad * 0.80;
+    // Предполагаем, что передняя стенка находится на уровне шкворня (упрощение для MVP)
+    double cargoOnBogie = cargoWeight * (cargoCOGFromFront / trailer.kingpinToBogieCenter);
+    double cargoOnKingpin = cargoWeight - cargoOnBogie;
 
-    double finalTractorFront = tractor.frontAxleEmptyWeight + tractorFrontAddition;
-    double finalTractorRear = tractor.rearAxleEmptyWeight + tractorRearAddition;
+    // 3. Распределение веса тары полуприцепа (Lever Rule)
+    // Упрощение: вес тары распределен 35/65 для пустого
+    double tareOnKingpin = trailer.unladenWeight * 0.35;
+    double tareOnBogie = trailer.unladenWeight * 0.65;
 
-    // 4. Распределение веса на тележке полуприцепа
-    // Исключаем поднятую ось если есть
-    int activeTrailerAxles = trailer.axleCount;
-    if (trailer.isFirstAxleLifted) {
-      activeTrailerAxles -= 1;
-    }
+    double totalOnKingpin = cargoOnKingpin + tareOnKingpin;
+    double totalOnBogie = cargoOnBogie + tareOnBogie;
 
-    double perTrailerAxleLoad = trailerBogieLoad / activeTrailerAxles;
+    // 4. Распределение нагрузки с седла (Kingpin) на оси тягача
+    // Колесная база = wheelbase
+    // Седло смещено от задней оси на fifthWheelOffset (вперед)
+    // Дистанция от передней оси до седла = wheelbase - fifthWheelOffset
+    // Нагрузка на заднюю тележку тягача = totalOnKingpin * (Dist_Front_to_KP / wheelbase)
+    // Нагрузка на переднюю ось тягача = totalOnKingpin - Нагрузка_на_заднюю
 
-    // 5. Формирование отчета
+    double distFrontToKP = tractor.wheelbase - tractor.fifthWheelOffset;
+    double kingpinOnRear = totalOnKingpin * (distFrontToKP / tractor.wheelbase);
+    double kingpinOnFront = totalOnKingpin - kingpinOnRear;
+
+    // 5. Итоговые веса по осям
+    double finalFront = tractor.frontAxleEmptyWeight + kingpinOnFront;
+    double finalRear = tractor.rearAxleEmptyWeight + kingpinOnRear;
+
+    // 6. Формирование отчета
     final List<AxleLoadResult> loads = [];
 
-    // Рулевая ось тягача
+    // Рулевая ось
     loads.add(AxleLoadResult(
-      label: 'Рулевая ось тягача',
-      currentLoad: finalTractorFront,
+      label: 'Передняя ось тягача',
+      currentLoad: finalFront,
       limit: RuWeightLimits.singleAxleLimit,
     ));
 
-    // Ведущая ось/группа тягача
-    double tractorRearLimit = RuWeightLimits.singleAxleLimit;
-    if (tractor.wheelFormula == '6x4' || tractor.wheelFormula == '6x2') {
-      tractorRearLimit = RuWeightLimits.tandemAxleLimit;
-    }
-
+    // Ведущая группа
+    double rearLimit = (tractor.wheelFormula == '6x4') ? RuWeightLimits.tandemAxleLimit : RuWeightLimits.singleAxleLimit;
     loads.add(AxleLoadResult(
-      label: tractor.wheelFormula == '4x2' ? 'Ведущая ось тягача' : 'Ведущая тележка тягача',
-      currentLoad: finalTractorRear,
-      limit: tractorRearLimit,
+      label: tractor.wheelFormula == '6x4' ? 'Ведущая тележка тягача' : 'Ведущая ось тягача',
+      currentLoad: finalRear,
+      limit: rearLimit,
     ));
 
-    // Оси полуприцепа
-    double trailerBogieLimit = RuWeightLimits.tripleAxleLimit;
+    // Группа прицепа
+    int activeAxles = trailer.axleCount;
+    double bogieLimit = RuWeightLimits.tripleAxleLimit;
     if (trailer.axleCount == 4) {
-      trailerBogieLimit = trailer.isFirstAxleLifted ? RuWeightLimits.tripleAxleLimit : RuWeightLimits.quadAxleLimit;
+      if (trailer.isFirstAxleLifted) {
+        activeAxles = 3;
+        bogieLimit = RuWeightLimits.tripleAxleLimit;
+      } else {
+        bogieLimit = RuWeightLimits.quadAxleLimit;
+      }
     }
 
     loads.add(AxleLoadResult(
-      label: 'Тележка полуприцепа (${trailer.isFirstAxleLifted ? activeTrailerAxles : trailer.axleCount} оси)',
-      currentLoad: trailerBogieLoad,
-      limit: trailerBogieLimit,
+      label: 'Осевая группа полуприцепа ($activeAxles оси)',
+      currentLoad: totalOnBogie,
+      limit: bogieLimit,
     ));
 
     return CalculationReport(
-      totalMass: tractor.curbWeight + totalTrailerWeight,
+      totalMass: tractor.curbWeight + trailer.unladenWeight + cargoWeight,
       axleLoads: loads,
     );
   }

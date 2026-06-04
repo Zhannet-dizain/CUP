@@ -30,8 +30,8 @@ class DriverBalanceScreen extends ConsumerWidget {
             _buildMileageKpi(earnings),
             const SizedBox(height: 20),
             _buildEarningsCalculator(earnings),
-            const SizedBox(height: 20),
-            _buildToolsSection(context),
+            const SizedBox(height: 32),
+            _buildAdvancedTools(context),
           ],
         ),
       ),
@@ -102,7 +102,6 @@ class DriverBalanceScreen extends ConsumerWidget {
     double progress = earnings.currentMonthKmDriven / earnings.kmTarget;
     if (progress > 1.0) progress = 1.0;
 
-    // Use a simple list for months as 'ru_RU' locale might not be initialized
     final months = [
       'Январе', 'Феврале', 'Марте', 'Апреле', 'Мае', 'Июне',
       'Июле', 'Августе', 'Сентябре', 'Октябре', 'Ноябре', 'Декабре'
@@ -168,17 +167,17 @@ class DriverBalanceScreen extends ConsumerWidget {
       child: Theme(
         data: ThemeData.dark().copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          title: const Text('Калькулятор заработка',
+          title: const Text('Детализация начислений',
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold)),
           childrenPadding: const EdgeInsets.all(16),
           children: [
-            _calcRow('Заработано по пробегу (${earnings.currentMonthKmDriven.toInt()} км × ${earnings.perKmRate} ₽)', kmEarnings),
-            _calcRow('Суточные к ближ. вторнику', earnings.accumulatedDailyAllowances),
-            _calcRow('Премия за экономию (СКАУТ)', earnings.currentBonuses, color: Colors.greenAccent),
-            _calcRow('Удержания (Штрафы ГИБДД)', -earnings.currentDeductions, color: Colors.redAccent),
+            _calcRow('За пробег (${earnings.currentMonthKmDriven.toInt()} км × ${earnings.perKmRate} ₽)', kmEarnings),
+            _calcRow('Суточные (к выплате)', earnings.accumulatedDailyAllowances),
+            _calcRow('Бонусы СКАУТ/Документы', earnings.currentBonuses, color: Colors.greenAccent),
+            _calcRow('Удержания (Штрафы)', -earnings.currentDeductions, color: Colors.redAccent),
             const Divider(color: Color(0xFF334155), height: 32),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -186,12 +185,12 @@ class DriverBalanceScreen extends ConsumerWidget {
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Итого чистыми на руки',
+                    Text('К выплате (чистыми)',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold)),
-                    Text('(за вычетом НДФЛ 13%)',
+                    Text('за вычетом НДФЛ 13%',
                         style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
                   ],
                 ),
@@ -223,53 +222,78 @@ class DriverBalanceScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildToolsSection(BuildContext context) {
+  Widget _buildAdvancedTools(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'ИНСТРУМЕНТЫ',
+          'ПРОФЕССИОНАЛЬНЫЕ ИНСТРУМЕНТЫ',
           style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => const AxleCalcDialog(),
-              );
-            },
-            icon: const Icon(Icons.calculate_outlined),
-            label: const Text('Калькулятор развесовки груза', style: TextStyle(fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E293B),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFF334155)),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => const AxleCalcDialog(),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF334155)),
+              gradient: LinearGradient(
+                colors: [const Color(0xFF1E293B), const Color(0xFF1E293B).withOpacity(0.8)],
               ),
-              elevation: 0,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF38BDF8).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons. balance, color: Color(0xFF38BDF8), size: 32),
+                ),
+                const SizedBox(width: 20),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Калькулятор развесовки',
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Расчет осевых нагрузок по закону РФ №2200',
+                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: Color(0xFF64748B)),
+              ],
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF334155).withOpacity(0.3),
+            color: const Color(0xFF334155).withOpacity(0.2),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
-              Icon(Icons.info_outline, color: Color(0xFF38BDF8), size: 20),
-              SizedBox(width: 12),
-              Expanded(
+              const Icon(Icons.info_outline, color: Color(0xFF38BDF8), size: 20),
+              const SizedBox(width: 12),
+              const Expanded(
                 child: Text(
-                  'Любые финансовые споры решаются только личным звонком начальнику колонны.',
-                  style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12),
+                  'Финансовые вопросы решаются лично с начальником колонны.',
+                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
                 ),
               ),
             ],
